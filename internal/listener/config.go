@@ -8,4 +8,9 @@ type Config struct {
 	EventName       string // Name of the event (case-sensitive)
 	FromBlock       string // Starting block number (or "latest")
 	OutputTarget    string // Where to send the output (stdout, json, etc.)
+	Mode            string // "ws" or "poll"
+	PollInterval    int    // seconds
+	PollWindow      int    // number of blocks
+	FetchABI        bool   // If true, fetch ABI from BscScan
+	APIKey          string // Optional: BscScan API key
 }

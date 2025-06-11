@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -32,16 +33,14 @@ func main() {
 						EnvVars:  []string{"CONTRACT_ADDRESS"},
 					},
 					&cli.StringFlag{
-						Name:     "abi",
-						Usage:    "Path to ABI JSON file",
-						Required: true,
-						EnvVars:  []string{"ABI_PATH"},
+						Name:    "abi",
+						Usage:   "Path to ABI JSON file",
+						EnvVars: []string{"ABI_PATH"},
 					},
 					&cli.StringFlag{
-						Name:     "event",
-						Usage:    "Event name (case-sensitive)",
-						Required: true,
-						EnvVars:  []string{"EVENT_NAME"},
+						Name:    "event",
+						Usage:   "Event name (case-sensitive)",
+						EnvVars: []string{"EVENT_NAME"},
 					},
 					&cli.StringFlag{
 						Name:    "from-block",
@@ -55,6 +54,34 @@ func main() {
 						Value:   "stdout",
 						EnvVars: []string{"OUTPUT"},
 					},
+					&cli.StringFlag{
+						Name:    "mode",
+						Usage:   "Listening mode: ws (WebSocket) or poll (HTTP polling)",
+						Value:   "ws",
+						EnvVars: []string{"MODE"},
+					},
+					&cli.IntFlag{
+						Name:    "poll-interval",
+						Usage:   "Polling interval in seconds (only for poll mode)",
+						Value:   5,
+						EnvVars: []string{"POLL_INTERVAL"},
+					},
+					&cli.IntFlag{
+						Name:    "poll-window",
+						Usage:   "Block window size per poll (only for poll mode)",
+						Value:   1,
+						EnvVars: []string{"POLL_WINDOW"},
+					},
+					&cli.BoolFlag{
+						Name:    "fetch-abi",
+						Usage:   "Automatically fetch ABI from BscScan",
+						EnvVars: []string{"FETCH_ABI"},
+					},
+					&cli.StringFlag{
+						Name:    "bscscan-api-key",
+						Usage:   "BscScan API key (optional for low-volume requests)",
+						EnvVars: []string{"BSCSCAN_API_KEY"},
+					},
 				},
 				Action: func(c *cli.Context) error {
 					cfg := listener.Config{
@@ -64,8 +91,20 @@ func main() {
 						EventName:       c.String("event"),
 						FromBlock:       c.String("from-block"),
 						OutputTarget:    c.String("output"),
+						Mode:            c.String("mode"),
+						PollInterval:    c.Int("poll-interval"),
+						PollWindow:      c.Int("poll-window"),
+						FetchABI:        c.Bool("fetch-abi"),
+						APIKey:          c.String("bscscan-api-key"),
 					}
 
+					if !cfg.FetchABI && cfg.ABIPath == "" {
+						return fmt.Errorf("you must provide --abi or use --fetch-abi to retrieve it automatically")
+					}
+
+					if cfg.Mode == "poll" {
+						return listener.Poll(cfg)
+					}
 					return listener.Listen(cfg)
 				},
 			},
