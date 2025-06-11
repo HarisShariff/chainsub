@@ -39,6 +39,17 @@ chainsub listen \
 - JSON file
 - (Extendable: Kafka, DB, etc.)
 
+## 🔧 CLI Flags
+
+| Flag           | Description                                                | Required | Example                                  |
+| -------------- | ---------------------------------------------------------- | -------- | ---------------------------------------- |
+| `--rpc`        | RPC URL of the EVM-compatible node                         | ✅       | `--rpc https://bsc-dataseed.binance.org` |
+| `--contract`   | Address of the smart contract to monitor                   | ✅       | `--contract 0x55d398...`                 |
+| `--abi`        | Path to the ABI JSON file for decoding events              | ✅       | `--abi ./contracts/erc20.json`           |
+| `--event`      | Name of the event to subscribe to (case-sensitive)         | ✅       | `--event Transfer`                       |
+| `--from-block` | Block number to start listening from (`latest` by default) | ❌       | `--from-block 12345678`                  |
+| `--output`     | Output type: `stdout` or `json`                            | ❌       | `--output json`                          |
+
 ## 🧰 Use Cases
 
 - ✅ Test if contract emits expected logs
