@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/HarisShariff/chainsub/internal/listener"
+	"github.com/HarisShariff/chainsub/pkg/listener"
 
 	"github.com/urfave/cli/v2"
 )

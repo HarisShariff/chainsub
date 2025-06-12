@@ -10,8 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/HarisShariff/chainsub/internal/ethutils"
-	"github.com/HarisShariff/chainsub/internal/output"
+	"github.com/HarisShariff/chainsub/pkg/ethutils"
+	"github.com/HarisShariff/chainsub/pkg/output"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
