@@ -1,136 +1,170 @@
-# chainsub – Minimal Smart Contract Event Listener (CLI + Go Library)
+# Chainsub – Minimal Smart Contract Event Listener (CLI & Go Package)
 
-chainsub is a lightweight, developer-friendly CLI and Go package that lets you subscribe to smart contract events on any EVM-compatible blockchain (like BNB Chain, Ethereum, Polygon, etc.).
+## 📌 What is Chainsub?
 
-Use it to:
+Chainsub is a lightweight, easy-to-use CLI and Go library designed to subscribe and monitor smart contract events on any EVM-compatible blockchain such as BNB Chain, Ethereum, Polygon, Avalanche, and more.
 
-- 🧪 Debug contracts by watching emitted events
-- 📤 Stream events to stdout, JSON, or custom outputs
-- 🛠️ Embed in Go backends, bots, or indexers
+## 🔍 Why Chainsub?
 
-⸻
+- **Simplicity**: Minimal setup, no heavy dependencies.
+- **Flexibility**: Easily integrates into existing Go projects.
+- **Real-time monitoring**: Provides both WebSocket and polling options for event subscriptions.
+- **Developer-friendly**: Human-readable logs and JSON outputs for seamless integration and debugging.
 
-## 🚀 Quick Start (CLI)
+## 🛠️ What Chainsub Does
 
-Install
+Chainsub:
+
+- Connects to any RPC URL.
+- Dynamically fetches contract ABIs (optional).
+- Subscribes to specific contract events.
+- Decodes event logs into human-readable formats.
+- Outputs data to stdout or JSON, with extensibility for additional outputs (e.g., databases, message queues).
+
+## 🚀 Quick Start
+
+### 1. Install
 
 ```bash
 go install github.com/HarisShariff/chainsub/cmd/chainsub@latest
 ```
 
-Example Usage
+### 2. Run (Choose mode: Listen or Poll)
+
+#### 🔄 WebSocket (Listen Mode)
+
+**Advantages:**
+
+- Real-time event streaming.
+- Efficient and low latency.
+
+**Disadvantages:**
+
+- Requires stable WebSocket-compatible RPC URL.
 
 ```bash
 chainsub listen \
-  --rpc https://bsc-dataseed.binance.org \
-  --contract 0x55d398326f99059ff775485246999027b3197955 \
-  --abi ./contracts/erc20.json \
+  --rpc https://bsc.publicnode.com \
+  --contract 0x... \
   --event Transfer \
-  --output stdout
+  --fetch-abi \
+  --bscscan-api-key YOUR_API_KEY
 ```
 
-## 🎯 What It Does
+#### ⏱️ HTTP Polling (Poll Mode)
 
-- Connects to any EVM-compatible RPC
-- Subscribes to a contract’s event logs
-- Decodes events using a provided ABI
-- Streams logs to:
-- Terminal (human-readable)
-- JSON file
-- (Extendable: Kafka, DB, etc.)
+**Advantages:**
 
-## 🔧 CLI Flags
+- Compatible with any HTTP RPC endpoint.
+- Robust against connection drops.
 
-| Flag           | Description                                                | Required | Example                                  |
-| -------------- | ---------------------------------------------------------- | -------- | ---------------------------------------- |
-| `--rpc`        | RPC URL of the EVM-compatible node                         | ✅       | `--rpc https://bsc-dataseed.binance.org` |
-| `--contract`   | Address of the smart contract to monitor                   | ✅       | `--contract 0x55d398...`                 |
-| `--abi`        | Path to the ABI JSON file for decoding events              | ✅       | `--abi ./contracts/erc20.json`           |
-| `--event`      | Name of the event to subscribe to (case-sensitive)         | ✅       | `--event Transfer`                       |
-| `--from-block` | Block number to start listening from (`latest` by default) | ❌       | `--from-block 12345678`                  |
-| `--output`     | Output type: `stdout` or `json`                            | ❌       | `--output json`                          |
+**Disadvantages:**
 
-## 🧰 Use Cases
+- Slight delay based on polling interval.
 
-- ✅ Test if contract emits expected logs
-- ✅ Monitor token transfers or custom events
-- ✅ Pipe on-chain activity into your own service
-- ✅ Build fast log-based devtools or bots
+```bash
+chainsub listen \
+  --rpc https://bsc.publicnode.com \
+  --contract 0x... \
+  --event Transfer \
+  --fetch-abi \
+  --mode poll \
+  --poll-interval 10 \
+  --bscscan-api-key YOUR_API_KEY
+```
 
-📦 Using as a Go Package
+## ⚙️ Building from Source
+
+```bash
+git clone https://github.com/HarisShariff/chainsub.git
+cd chainsub
+go build -o chainsub ./cmd/chainsub
+```
+
+## 🚩 CLI Flags
+
+| Flag                | Description                         | Required | Example                            |
+| ------------------- | ----------------------------------- | -------- | ---------------------------------- |
+| `--rpc`             | RPC URL of the EVM-compatible node  | ✅       | `--rpc https://bsc.publicnode.com` |
+| `--contract`        | Contract address to monitor         | ✅       | `--contract 0xABC123...`           |
+| `--abi`             | Path to ABI JSON file               | ❌       | `--abi ./erc20.json`               |
+| `--event`           | Name of event to monitor            | ❌       | `--event Transfer`                 |
+| `--from-block`      | Starting block (default: latest)    | ❌       | `--from-block 123456`              |
+| `--output`          | Output format (`stdout`, `json`)    | ❌       | `--output json`                    |
+| `--mode`            | Listening mode (`ws`, `poll`)       | ❌       | `--mode poll`                      |
+| `--poll-interval`   | Interval between polls (in seconds) | ❌       | `--poll-interval 5`                |
+| `--poll-window`     | Number of blocks per poll           | ❌       | `--poll-window 2`                  |
+| `--fetch-abi`       | Auto-fetch ABI from BscScan         | ❌       | `--fetch-abi`                      |
+| `--bscscan-api-key` | BscScan API key                     | ❌       | `--bscscan-api-key yourkey`        |
+
+## 🎯 Use Cases
+
+- Monitor token transfers or specific contract events.
+- Debug and validate smart contract behavior.
+- Stream on-chain events to external services.
+- Build automated bots or monitoring tools.
+
+## 📖 Example Tutorial: Monitoring Token Transfers
+
+Suppose you want to monitor transfer events for a popular token (e.g., Cake on BNB Chain):
+
+1. Run Chainsub to subscribe to `Transfer` events:
+
+```bash
+chainsub listen \
+  --rpc https://bsc.publicnode.com \
+  --contract 0x0eD7e52944161450477ee417DE9Cd3a859b14fD0 \
+  --event Transfer \
+  --fetch-abi \
+  --bscscan-api-key YOUR_API_KEY
+```
+
+2. Chainsub provides real-time, formatted logs:
+
+```
+📥 Log at block 51273361: 0x9bae08c...
+🔁 Transfer Event
+----------------------------------------
+From:   0xBa53dA030...
+To:     0xBeef12345...
+Amount: 328.354457 CAKE
+```
+
+3. You can adapt this to your own contracts, by specifying the contract address and event name.
+
+## 📦 Using as a Go Package
+
+You can embed Chainsub directly in your Go projects:
 
 ```go
-import "github.com/HarisShariff/chainsub"
+import "github.com/HarisShariff/chainsub/pkg/listener"
 
-cfg := chainsub.Config{
-  RPCURL:          "https://bsc-dataseed.binance.org",
+cfg := listener.Config{
+  RPCURL:          "https://bsc.publicnode.com",
   ContractAddress: "0x...",
-  ABIPath:         "./erc20.json",
   EventName:       "Transfer",
   FromBlock:       "latest",
-  OutputTarget:    "stdout",
+  FetchABI:        true,
+  APIKey:          "YOUR_API_KEY",
 }
 
-if err := chainsub.Listen(cfg); err != nil {
+if err := listener.Listen(cfg); err != nil {
   log.Fatal(err)
 }
 ```
 
-🧪 Example Output (stdout)
+## 🧩 Extending Chainsub
 
-```json
-{
-  "event": "Transfer",
-  "blockNumber": 40129382,
-  "txHash": "0xabc123...",
-  "from": "0xdead...",
-  "to": "0xbeef...",
-  "value": "1000000000000000000"
-}
-```
+You can easily extend Chainsub to:
 
-## 🗂 Project Structure
-
-```
-chainsub/
-├── cmd/               # CLI app (urfave/cli)
-│   └── listen.go
-├── chainsub/          # Reusable Go package
-│   ├── listener.go
-│   ├── config.go
-│   ├── decoder.go
-│   └── output/
-│       ├── stdout.go
-│       └── json.go
-├── contracts/         # Example ABIs
-│   └── erc20.json
-├── go.mod
-├── main.go
-└── README.md
-```
-
-## 📦 Install From Source
-
-```bash
-git clone https://github.com/yourname/chainsub.git
-cd chainsub
-go build -o chainsub ./cmd/chainsub
-./chainsub listen ...
-```
-
-## 🧠 Roadmap
-
-- Kafka output writer
-- Webhook or gRPC stream support
-- Replay logs (batch from block range)
-- Auto-ABI fetch from BscScan
+- Write events to databases like PostgreSQL, MongoDB.
+- Integrate with message queues like Kafka or RabbitMQ.
+- Implement custom event processing logic.
 
 ## 📜 License
 
 MIT
 
-## 🔗 Related
+## 🌟 Contribute
 
-- go-ethereum – For log subscription and ABI decoding
-- urfave/cli – For CLI handling
-- Compatible with: BNB Chain, Ethereum, Polygon, Arbitrum, Optimism, Avalanche, etc.
+Feel free to fork, suggest improvements, or contribute via pull requests!
