@@ -165,6 +165,10 @@ You can easily extend Chainsub to:
 
 MIT
 
+## ✍️ Author: Haris Shariff
+
+Built by Haris Shariff — [Github](https://github.com/HarisShariff). Feel free to reach out or fork this repo!
+
 ## 🌟 Contribute
 
 Feel free to fork, suggest improvements, or contribute via pull requests!
